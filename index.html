@@ -18,27 +18,19 @@
     <script type="text/babel">
         const { useState, useRef, useEffect } = React;
         
-        // Автоматическое определение ключевых точек
         const detectKeyPoints = (img, gridSize = 5) => {
             const points = [];
-            
-            // Углы
             points.push({ x: 0, y: 0 });
             points.push({ x: 1, y: 0 });
             points.push({ x: 1, y: 1 });
             points.push({ x: 0, y: 1 });
             
-            // Сетка точек
             for (let i = 1; i < gridSize; i++) {
                 for (let j = 1; j < gridSize; j++) {
-                    points.push({
-                        x: i / gridSize,
-                        y: j / gridSize
-                    });
+                    points.push({ x: i / gridSize, y: j / gridSize });
                 }
             }
             
-            // Центральные точки на краях
             for (let i = 1; i < gridSize; i++) {
                 points.push({ x: i / gridSize, y: 0 });
                 points.push({ x: i / gridSize, y: 1 });
@@ -49,7 +41,6 @@
             return points;
         };
         
-        // Исправленная функция проверки точки в описанной окружности
         const inCircumcircle = (point, triangle) => {
             const [ax, ay] = triangle[0];
             const [bx, by] = triangle[1];
@@ -83,7 +74,6 @@
             );
         };
         
-        // Улучшенная триангуляция Делоне
         const delaunayTriangulate = (points) => {
             if (points.length < 3) return [];
             
@@ -144,7 +134,6 @@
                 }
             }
             
-            // Фильтруем треугольники, содержащие вершины супертреугольника
             const finalTriangles = triangles.filter(triangle => {
                 return !triangle.some(vertex => {
                     const [vx, vy] = vertex;
@@ -351,13 +340,12 @@
               const uvs = new Float32Array(points1.length * 2);
 
               for (let i = 0; i < points1.length; i++) {
-                // Исправленные координаты для Three.js
                 positions1[i * 3] = (points1[i].x * 2 - 1);
-                positions1[i * 3 + 1] = -(points1[i].y * 2 - 1); // Инверсия Y
+                positions1[i * 3 + 1] = -(points1[i].y * 2 - 1);
                 positions1[i * 3 + 2] = 0;
 
                 positions2[i * 3] = (points2[i].x * 2 - 1);
-                positions2[i * 3 + 1] = -(points2[i].y * 2 - 1); // Инверсия Y
+                positions2[i * 3 + 1] = -(points2[i].y * 2 - 1);
                 positions2[i * 3 + 2] = 0;
 
                 uvs[i * 2] = points1[i].x;
@@ -439,7 +427,6 @@
               ctx.fillRect(0, 0, outputWidth, outputHeight);
               ctx.drawImage(renderer.domElement, 0, 0);
 
-              // Правильная очистка ресурсов
               texture1.dispose();
               texture2.dispose();
               geometry.dispose();
@@ -554,7 +541,6 @@
                 const elapsed = timestamp - lastFrameTimeRef.current;
                 
                 if (elapsed >= frameDuration) {
-                  // Показываем надпись только если НЕ идет запись видео
                   drawFrame(frame, !isDownloadingVideo);
                   frame = (frame + 1) % interpolatedFrames.length;
                   setCurrentFrame(frame);
@@ -651,11 +637,9 @@
             const canvas = canvasRef.current;
             if (!canvas) return;
 
-            // Сначала устанавливаем флаг записи, потом рисуем первый кадр без надписи
             setIsDownloadingVideo(true);
             await new Promise(resolve => setTimeout(resolve, 100));
             
-            // Рисуем первый кадр без надписи
             drawFrame(0, false);
             await new Promise(resolve => setTimeout(resolve, 100));
 
@@ -698,7 +682,83 @@
             <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 p-4 md:p-8">
               <div className="max-w-7xl mx-auto">
                 <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">Интерполятор кадров с автоматическим морфингом</h1>
-                <p className="text-gray-600 mb-6 md:mb-8">Загрузите ключевые кадры - точки для морфинга будут найдены автоматически</p>
+                <p className="text-gray-600 mb-4">Создавайте плавные переходы между изображениями с автоматическим морфингом</p>
+                
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 rounded-lg p-4 mb-6">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                    <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Как использовать
+                  </h3>
+                  <div className="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                    <div className="flex items-start gap-3 mb-2">
+                      <div className="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 font-bold text-sm">1</div>
+                      <div>
+                        <div className="font-semibold text-gray-800">Загрузите минимум 2 изображения</div>
+                        <div className="text-sm text-gray-600 mt-1">Это будут ваши ключевые кадры. Можно загрузить больше для создания последовательности переходов.</div>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 mb-2">
+                      <div className="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 font-bold text-sm">2</div>
+                      <div>
+                        <div className="font-semibold text-gray-800">Настройте параметры интерполяции</div>
+                        <div className="text-sm text-gray-600 mt-1">Выберите количество промежуточных кадров и FPS воспроизведения по шаблонам ниже.</div>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 font-bold text-sm">3</div>
+                      <div>
+                        <div className="font-semibold text-gray-800">Создайте анимацию и скачайте результат</div>
+                        <div className="text-sm text-gray-600 mt-1">Программа автоматически создаст плавный переход между вашими изображениями.</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <h4 className="text-md font-semibold text-gray-800 mb-2">Рекомендуемые настройки:</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
+                    <div className="bg-white rounded-lg p-3 shadow-sm">
+                      <div className="font-semibold text-purple-700 mb-1">🎬 Кинематографичный эффект</div>
+                      <div className="text-gray-600">24 FPS • 15-30 кадров</div>
+                      <div className="text-xs text-gray-500 mt-1">Плавная анимация, эффект кино</div>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-3 shadow-sm">
+                      <div className="font-semibold text-green-700 mb-1">📺 Стандартное видео</div>
+                      <div className="text-gray-600">30 FPS • 20-40 кадров</div>
+                      <div className="text-xs text-gray-500 mt-1">Универсальный вариант</div>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-3 shadow-sm">
+                      <div className="font-semibold text-blue-700 mb-1">⚡ Плавный морфинг</div>
+                      <div className="text-gray-600">60 FPS • 40-60 кадров</div>
+                      <div className="text-xs text-gray-500 mt-1">Максимальная плавность</div>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-3 shadow-sm">
+                      <div className="font-semibold text-orange-700 mb-1">🎨 Художественный стиль</div>
+                      <div className="text-gray-600">12 FPS • 5-10 кадров</div>
+                      <div className="text-xs text-gray-500 mt-1">Стоп-моушен эффект</div>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-3 shadow-sm">
+                      <div className="font-semibold text-red-700 mb-1">🚀 Быстрая презентация</div>
+                      <div className="text-gray-600">30 FPS • 5-10 кадров</div>
+                      <div className="text-xs text-gray-500 mt-1">Динамичная смена</div>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-3 shadow-sm">
+                      <div className="font-semibold text-indigo-700 mb-1">💫 Медленный переход</div>
+                      <div className="text-gray-600">30 FPS • 50-60 кадров</div>
+                      <div className="text-xs text-gray-500 mt-1">Долгий плавный морфинг</div>
+                    </div>
+                  </div>
+                  <div className="mt-3 text-xs text-gray-600 bg-yellow-50 border border-yellow-200 rounded p-2">
+                    <strong>💡 Совет:</strong> Для плавного морфинга используйте 20+ промежуточных кадров. 
+                    Для быстрых переходов — 5-15 кадров. Высокий FPS делает анимацию более плавной. 
+                    Максимум: 60 кадров между ключевыми.
+                  </div>
+                </div>
                 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
                   <div className="lg:col-span-1 space-y-4">
